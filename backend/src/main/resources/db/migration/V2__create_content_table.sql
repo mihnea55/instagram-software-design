@@ -1,5 +1,5 @@
 CREATE TABLE content (
-    id BIGINT PRIMARY KEY,
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     parent_id BIGINT NULL,
     author_id BIGINT NOT NULL,
     type VARCHAR(20) NOT NULL,
