@@ -8,6 +8,6 @@ public class TestController {
 
     @GetMapping("/hello")
     public String hello() {
-        return "Backend is working!";
+        return "FINE!";
     }
 }
