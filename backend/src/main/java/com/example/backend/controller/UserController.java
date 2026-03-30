@@ -1,40 +1,45 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.UserResponseDto;
 import com.example.backend.entity.User;
 import com.example.backend.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserService service;
+    private final UserService userService;
 
     @PostMapping
-    public User create(@RequestBody User user) {
-        return service.create(user);
+    public UserResponseDto create(@RequestBody User user) {
+        return userService.create(user);
     }
 
     @GetMapping("/{id}")
-    public User get(@PathVariable Long id) {
-        return service.getById(id);
+    public UserResponseDto getById(@PathVariable Long id) {
+        return userService.getById(id);
     }
 
     @GetMapping
-    public List<User> getAll() {
-        return service.getAll();
+    public List<UserResponseDto> getAll() {
+        return userService.getAll();
     }
 
     @PutMapping("/{id}")
-    public User update(@PathVariable Long id, @RequestBody User user) {
-        return service.update(id, user);
+    public UserResponseDto update(
+            @PathVariable Long id,
+            @RequestBody User updated
+    ) {
+        return userService.update(id, updated);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        service.delete(id);
+        userService.delete(id);
     }
 }

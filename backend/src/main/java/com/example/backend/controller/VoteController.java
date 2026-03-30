@@ -1,25 +1,23 @@
 package com.example.backend.controller;
 
-import com.example.backend.entity.Vote;
+import com.example.backend.dto.VoteResponseDto;
 import com.example.backend.service.VoteService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/votes")
+@RequiredArgsConstructor
 public class VoteController {
 
-    @Autowired
-    private VoteService service;
+    private final VoteService voteService;
 
     @PostMapping
-    public Vote vote(
+    public VoteResponseDto vote(
             @RequestParam Long userId,
             @RequestParam Long postId,
-            @RequestParam int value) {
-        return service.vote(userId, postId, value);
+            @RequestParam int value
+    ) {
+        return voteService.vote(userId, postId, value);
     }
 }

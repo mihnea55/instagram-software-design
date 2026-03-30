@@ -1,8 +1,10 @@
 package com.example.backend.entity;
+
+import com.example.backend.model.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import javax.management.relation.Role;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,7 +15,6 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

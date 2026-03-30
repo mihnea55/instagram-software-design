@@ -1,9 +1,11 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.UserResponseDto;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,28 +15,49 @@ public class UserService {
     @Autowired
     private UserRepository userRepo;
 
-    public User create(User user) {
+    public UserResponseDto create(User user) {
         user.setPasswordHash(user.getPasswordHash());
         user.setCreatedAt(LocalDateTime.now());
-        return userRepo.save(user);
+        return toDto(userRepo.save(user));
     }
 
-    public User getById(Long id) {
-        return userRepo.findById(id).orElseThrow();
+    public UserResponseDto getById(Long id) {
+        return toDto(userRepo.findById(id).orElseThrow());
     }
 
-    public List<User> getAll() {
-        return userRepo.findAll();
+    public List<UserResponseDto> getAll() {
+        return userRepo.findAll().stream()
+                .map(this::toDto)
+                .toList();
     }
 
-    public User update(Long id, User updated) {
+    public UserResponseDto update(Long id, User updated) {
         User user = userRepo.findById(id).orElseThrow();
         user.setName(updated.getName());
         user.setEmail(updated.getEmail());
-        return userRepo.save(user);
+        user.setUsername(updated.getUsername());
+        user.setPhoneNumber(updated.getPhoneNumber());
+        user.setRole(updated.getRole());
+        user.setBlocked(updated.isBlocked());
+        user.setScore(updated.getScore());
+        return toDto(userRepo.save(user));
     }
 
     public void delete(Long id) {
         userRepo.deleteById(id);
+    }
+
+    private UserResponseDto toDto(User user) {
+        return UserResponseDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole())
+                .blocked(user.isBlocked())
+                .score(user.getScore())
+                .createdAt(user.getCreatedAt())
+                .build();
     }
 }
