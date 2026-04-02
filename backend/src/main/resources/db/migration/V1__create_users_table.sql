@@ -10,7 +10,7 @@ CREATE TABLE users (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT chk_users_role
-        CHECK (role IN ('USER', 'MODERATOR'))
+        CHECK (role IN ('USER', 'ADMIN'))
 );
 
 CREATE INDEX idx_users_username ON users(username);
