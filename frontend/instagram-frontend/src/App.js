@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import CreatePost from "./pages/CreatePost";
 import { useState } from "react";
 import Profile from "./pages/Profile";
+import EditProfile from "./pages/EditProfile";
 import "./App.css";
 
 function App() {
@@ -43,6 +44,12 @@ function App() {
           path="/profile/:userId"
           element={
             isLoggedIn ? <Profile /> : <Navigate to="/" />
+          }
+        />
+        <Route
+          path="/edit-profile"
+          element={
+            isLoggedIn ? <EditProfile /> : <Navigate to="/" />
           }
         />
 

@@ -18,7 +18,7 @@ public class UserResponseDto {
     private String phoneNumber;
     private String passwordHash;
     private Role role;
-    private boolean blocked;
+    private boolean isBlocked;
     private int score;
     private LocalDateTime createdAt;
 }

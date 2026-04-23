@@ -61,7 +61,7 @@ public class UserService {
                 .phoneNumber(user.getPhoneNumber())
                 .passwordHash(user.getPasswordHash())
                 .role(user.getRole())
-                .blocked(user.isBlocked())
+                .isBlocked(user.isBlocked())
                 .score(user.getScore())
                 .createdAt(user.getCreatedAt())
                 .build();

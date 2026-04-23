@@ -47,3 +47,7 @@ header > h1 {
     grid-template-columns: repeat(3, 300px);
     gap: 16px;
 }
+.comments-section{
+    max-height: 300px;
+    overflow-y: auto;
+}
