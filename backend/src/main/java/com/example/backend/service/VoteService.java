@@ -7,25 +7,21 @@ import com.example.backend.entity.Vote;
 import com.example.backend.repository.PostCommentRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.repository.VoteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
+@RequiredArgsConstructor
 public class VoteService {
 
-    @Autowired
-    private VoteRepository voteRepo;
-
-    @Autowired
-    private UserRepository userRepo;
-
-    @Autowired
-    private PostCommentRepository postRepo;
+    private final VoteRepository voteRepo;
+    private final UserRepository userRepo;
+    private final PostCommentRepository postRepo;
 
     public VoteResponseDto vote(Long userId, Long postId, int value) {
-        if (value != 1 && value != -1) {
-            throw new RuntimeException("Invalid vote");
-        }
+        validateVoteValue(value);
 
         if (voteRepo.findByUserIdAndPostCommentId(userId, postId).isPresent()) {
             throw new RuntimeException("Already voted");
@@ -44,6 +40,39 @@ public class VoteService {
         vote.setValue(value);
 
         return toDto(voteRepo.save(vote));
+    }
+
+    public List<VoteResponseDto> getAll() {
+        return voteRepo.findAll().stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public VoteResponseDto getById(Long id) {
+        Vote vote = voteRepo.findById(id).orElseThrow();
+        return toDto(vote);
+    }
+
+    public VoteResponseDto update(Long id, int value) {
+        validateVoteValue(value);
+
+        Vote vote = voteRepo.findById(id).orElseThrow();
+        vote.setValue(value);
+
+        return toDto(voteRepo.save(vote));
+    }
+
+    public VoteResponseDto delete(Long id) {
+        Vote vote = voteRepo.findById(id).orElseThrow();
+        VoteResponseDto response = toDto(vote);
+        voteRepo.delete(vote);
+        return response;
+    }
+
+    private void validateVoteValue(int value) {
+        if (value != 1 && value != -1) {
+            throw new RuntimeException("Invalid vote");
+        }
     }
 
     private VoteResponseDto toDto(Vote vote) {

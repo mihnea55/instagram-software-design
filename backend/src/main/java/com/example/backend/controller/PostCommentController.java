@@ -11,6 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class PostCommentController {
 
     private final PostCommentService postCommentService;
@@ -36,7 +37,10 @@ public class PostCommentController {
     public List<PostCommentResponseDto> getPosts() {
         return postCommentService.getPosts();
     }
-
+    @GetMapping("/{userId}")
+    public List<PostCommentResponseDto> getPostsByUser(@PathVariable int userId) {
+        return postCommentService.getPostsByUser(userId);
+    }
     @GetMapping("/{postId}/comments")
     public List<PostCommentResponseDto> getComments(@PathVariable Long postId) {
         return postCommentService.getComments(postId);
@@ -45,5 +49,18 @@ public class PostCommentController {
     @GetMapping("/search")
     public List<PostCommentResponseDto> search(@RequestParam String text) {
         return postCommentService.search(text);
+    }
+
+    @PutMapping("/{id}")
+    public PostCommentResponseDto updatePostOrComment(
+            @PathVariable Long id,
+            @RequestBody PostComment updatedPostComment
+    ) {
+        return postCommentService.updatePostOrComment(id, updatedPostComment);
+    }
+
+    @DeleteMapping("/{id}")
+    public PostCommentResponseDto deletePostOrComment(@PathVariable Long id) {
+        return postCommentService.deletePostOrComment(id);
     }
 }

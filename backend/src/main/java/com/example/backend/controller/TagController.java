@@ -11,6 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/tags")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class TagController {
 
     private final TagService tagService;
@@ -23,5 +24,15 @@ public class TagController {
     @GetMapping
     public List<TagDto> getAll() {
         return tagService.getAll();
+    }
+
+    @PutMapping("/{id}")
+    public TagDto update(@PathVariable Long id, @RequestBody Tag tag) {
+        return tagService.update(id, tag);
+    }
+
+    @DeleteMapping("/{id}")
+    public TagDto delete(@PathVariable Long id) {
+        return tagService.delete(id);
     }
 }

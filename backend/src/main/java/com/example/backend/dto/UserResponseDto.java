@@ -16,6 +16,7 @@ public class UserResponseDto {
     private String username;
     private String email;
     private String phoneNumber;
+    private String passwordHash;
     private Role role;
     private boolean blocked;
     private int score;

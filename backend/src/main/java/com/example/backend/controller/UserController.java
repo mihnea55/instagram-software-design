@@ -11,6 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
     private final UserService userService;
@@ -24,7 +25,10 @@ public class UserController {
     public UserResponseDto getById(@PathVariable Long id) {
         return userService.getById(id);
     }
-
+    @GetMapping("/username/{username}")
+    public List<UserResponseDto> getByUsername(@PathVariable String username) {
+        return userService.getAllByUsername(username);
+    }
     @GetMapping
     public List<UserResponseDto> getAll() {
         return userService.getAll();
@@ -37,7 +41,6 @@ public class UserController {
     ) {
         return userService.update(id, updated);
     }
-
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         userService.delete(id);

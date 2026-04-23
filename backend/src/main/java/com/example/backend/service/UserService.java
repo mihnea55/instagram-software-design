@@ -30,7 +30,12 @@ public class UserService {
                 .map(this::toDto)
                 .toList();
     }
-
+    public List<UserResponseDto> getAllByUsername(String username) {
+        return userRepo.findAll().stream()
+                .filter(user -> user.getUsername().toLowerCase().startsWith(username.toLowerCase()))
+                .map(this::toDto)
+                .toList();
+    }
     public UserResponseDto update(Long id, User updated) {
         User user = userRepo.findById(id).orElseThrow();
         user.setName(updated.getName());
@@ -54,6 +59,7 @@ public class UserService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
+                .passwordHash(user.getPasswordHash())
                 .role(user.getRole())
                 .blocked(user.isBlocked())
                 .score(user.getScore())

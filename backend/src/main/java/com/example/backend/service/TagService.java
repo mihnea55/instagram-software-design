@@ -4,7 +4,6 @@ import com.example.backend.dto.TagDto;
 import com.example.backend.entity.Tag;
 import com.example.backend.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +12,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TagService {
 
-    @Autowired
     private final TagRepository tagRepository;
 
     public TagDto create(Tag tag) {
@@ -27,6 +25,27 @@ public class TagService {
         return tagRepository.findAll().stream()
                 .map(this::toDto)
                 .toList();
+    }
+
+    public TagDto update(Long id, Tag updatedTag) {
+        Tag existingTag = tagRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tag with id " + id + " not found"));
+
+        if (!existingTag.getName().equals(updatedTag.getName())
+                && tagRepository.existsByName(updatedTag.getName())) {
+            throw new RuntimeException("Tag with name " + updatedTag.getName() + " already exists");
+        }
+
+        existingTag.setName(updatedTag.getName());
+        return toDto(tagRepository.save(existingTag));
+    }
+
+    public TagDto delete(Long id) {
+        Tag tag = tagRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tag with id " + id + " not found"));
+
+        tagRepository.delete(tag);
+        return toDto(tag);
     }
 
     private TagDto toDto(Tag tag) {

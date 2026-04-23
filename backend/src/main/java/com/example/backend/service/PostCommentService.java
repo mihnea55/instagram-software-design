@@ -54,17 +54,41 @@ public class PostCommentService {
                 .map(post -> toDto(post, true))
                 .toList();
     }
-
+    public List<PostCommentResponseDto> getPostsByUser(int userId) {
+        return repo.findByParentIsNullOrderByCreatedAtDesc().stream()
+                .filter(post -> post.getAuthor().getId() == userId)
+                .map(post -> toDto(post, true))
+                .toList();
+    }
     public List<PostCommentResponseDto> getComments(Long postId) {
         return repo.findByParentId(postId).stream()
                 .map(comment -> toDto(comment, true))
                 .toList();
     }
-
     public List<PostCommentResponseDto> search(String text) {
         return repo.findByTitleContaining(text).stream()
                 .map(post -> toDto(post, true))
                 .toList();
+    }
+
+    public PostCommentResponseDto updatePostOrComment(Long id, PostComment updatedPostComment) {
+        PostComment existing = repo.findById(id).orElseThrow();
+
+        existing.setTitle(updatedPostComment.getTitle());
+        existing.setContentText(updatedPostComment.getContentText());
+        existing.setImageUrl(updatedPostComment.getImageUrl());
+        existing.setTags(updatedPostComment.getTags());
+        existing.setStatus(updatedPostComment.getStatus());
+
+        PostComment saved = repo.save(existing);
+        return toDto(saved, true);
+    }
+
+    public PostCommentResponseDto deletePostOrComment(Long id) {
+        PostComment existing = repo.findById(id).orElseThrow();
+        PostCommentResponseDto response = toDto(existing, true);
+        repo.delete(existing);
+        return response;
     }
 
     private PostCommentResponseDto toDto(PostComment postComment, boolean includeComments) {
