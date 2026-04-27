@@ -1,6 +1,9 @@
 import { use, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { getCommentsByPostId, getPostsByUserId, createComment } from "../services/postService";
+import { getUserById } from "../services/userService";
+import { deletePost } from "../services/postService";
 export default function Profile() {
     const navigate = useNavigate();
     const { userId } = useParams();
@@ -32,8 +35,7 @@ export default function Profile() {
         }
 
         if (!repliesByCommentId[commentId]) {
-            fetch(`http://localhost:8080/api/posts/${commentId}/comments`)
-                .then((response) => response.json())
+            getCommentsByPostId(commentId)
                 .then((data) => {
                     setRepliesByCommentId((prev) => ({
                         ...prev,
@@ -61,14 +63,7 @@ export default function Profile() {
             imageUrl: null,
         };
 
-        fetch(`http://localhost:8080/api/posts/${postId}/comments?userId=${userLoggedInId}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(newComment),
-        })
-            .then((response) => response.json())
+        createComment(postId, userLoggedInId, newComment)
             .then((data) => {
                 if (selectedPost && postId === selectedPost.id) {
                     setComments((prevComments) => [...prevComments, data]);
@@ -89,8 +84,7 @@ export default function Profile() {
     };
 
     const handleComments = (postId) => {
-        fetch(`http://localhost:8080/api/posts/${postId}/comments`)
-            .then((response) => response.json())
+        getCommentsByPostId(postId)
             .then((data) => {
                 setComments(data);
             })
@@ -100,8 +94,7 @@ export default function Profile() {
     };
 
     useEffect(() => {
-        fetch(`http://localhost:8080/api/users/${userId}`)
-            .then((response) => response.json())
+        getUserById(userId)
             .then((data) => setUserData(data))
             .catch((error) => {
                 console.error("Error fetching user:", error);
@@ -109,8 +102,7 @@ export default function Profile() {
     }, [userId]);
 
     useEffect(() => {
-        fetch(`http://localhost:8080/api/posts/${userId}`)
-            .then((response) => response.json())
+        getPostsByUserId(userId)
             .then((data) => {
                 setPosts(data);
             })
@@ -138,7 +130,33 @@ export default function Profile() {
                 </p>
 
                 <button onClick={() => setReplyingToCommentId(comment.id)}>reply</button>
+                {isLoggedIn && String(comment.author.id) === userLoggedInId &&
+                    (
+                        <button
+                        onClick={() =>
+                            deletePost(comment.id)
+                                .then(() => {
+                                    if (level === 0 || comment.parentCommentId === selectedPost?.id) {
+                                        setComments((prev) => prev.filter((c) => c.id !== comment.id));
+                                    } else {
+                                        setRepliesByCommentId((prev) => ({
+                                            ...prev,
+                                            [comment.parentCommentId]: (prev[comment.parentCommentId] || []).filter(
+                                                (c) => c.id !== comment.id
+                                            ),
+                                        }));
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.error("Error deleting comment:", error);
+                                })
+                        }
+                    >
+                        Delete Comment
+                    </button>
 
+                    )
+                }
                 {replyingToCommentId === comment.id && (
                     <div>
                         <input
@@ -231,7 +249,16 @@ export default function Profile() {
                         <div className="post-modal-sidebar">
                             <h2>{selectedPost.title}</h2>
                             <p>{selectedPost.contentText}</p>
-
+                            {isLoggedIn && ownProfile && (
+                                <button onClick={() => deletePost(selectedPost.id).then(() => {
+                                    setSelectedPost(null);
+                                    setPosts((prevPosts) => prevPosts.filter((p) => p.id !== selectedPost.id));
+                                }).catch((error) => {
+                                    console.error("Error deleting post:", error);
+                                })}>
+                                    Delete Post
+                                </button>
+                            )}
                             <button onClick={() => setPostCommentEnabled(!postCommentEnabled)}>
                                 post comment
                             </button>

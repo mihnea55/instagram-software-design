@@ -63,4 +63,8 @@ public class PostCommentController {
     public PostCommentResponseDto deletePostOrComment(@PathVariable Long id) {
         return postCommentService.deletePostOrComment(id);
     }
+    @GetMapping("/post/{postId}")
+    public PostCommentResponseDto getPost(@PathVariable Long postId) {
+        return postCommentService.getPostCommentById(postId);
+    }
 }

@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { createPost } from "../services/postService";
+import { uploadImage } from "../services/uploadService";
 
 function CreatePost({ setIsLoggedIn }) {
     const navigate = useNavigate();
@@ -17,13 +19,7 @@ function CreatePost({ setIsLoggedIn }) {
         }
         try {
             setIsUploading(true);
-            const formData = new FormData();
-            formData.append("image", selectedFile);
-            const response = await fetch("http://localhost:8080/api/upload", {
-                method: "POST",
-                body: formData,
-            });
-            const imageUrl = await response.text();
+            const imageUrl = await uploadImage(selectedFile);
 
             const newPost = {
                 title,
@@ -31,13 +27,7 @@ function CreatePost({ setIsLoggedIn }) {
                 imageUrl,
                 status
             };
-            await fetch(`http://localhost:8080/api/posts?userId=${userId}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(newPost),
-            });
+            await createPost(userId, newPost);
             navigate("/main");
         } catch (error) {
             console.error("Error creating post:", error);

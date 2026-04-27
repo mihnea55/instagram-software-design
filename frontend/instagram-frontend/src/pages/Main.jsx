@@ -2,14 +2,15 @@
 import { useNavigate } from "react-router-dom";
 import search_icon from "../images/search.png";
 import {useEffect, useState } from "react";
+import { getPostsByUserId } from "../services/postService";
+import { getUsers, getUsersByUsername } from "../services/userService";
 export default function Main() {
     const [query, setQuery] = useState("");
     const [users, setUsers] = useState([]);
     const navigate = useNavigate();
     const [posts, setPosts] = useState([]);
     function fetchPosts(userId) {
-        fetch(`http://localhost:8080/api/posts/${userId}`)
-            .then((response) => response.json())
+        getPostsByUserId(userId)
             .then((data) => {
                 console.log(data);
                 setPosts(data);
@@ -20,8 +21,7 @@ export default function Main() {
     }
     useEffect(() => {
         if (query === "") {
-            fetch("http://localhost:8080/api/users")
-                .then((response) => response.json())
+            getUsers()
                 .then((data) => {
                     console.log(data);
                     setUsers(data);
@@ -31,8 +31,7 @@ export default function Main() {
                 });
             return;
         }
-        fetch(`http://localhost:8080/api/users/username/${query}`)
-            .then((response) => response.json())
+        getUsersByUsername(query)
             .then((data) => {
                 console.log(data);
                 setUsers(data);

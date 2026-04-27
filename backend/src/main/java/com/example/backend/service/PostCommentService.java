@@ -10,6 +10,7 @@ import com.example.backend.entity.Vote;
 import com.example.backend.model.Status;
 import com.example.backend.repository.PostCommentRepository;
 import com.example.backend.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -83,11 +84,25 @@ public class PostCommentService {
         PostComment saved = repo.save(existing);
         return toDto(saved, true);
     }
+    @Transactional
 
     public PostCommentResponseDto deletePostOrComment(Long id) {
         PostComment existing = repo.findById(id).orElseThrow();
+
         PostCommentResponseDto response = toDto(existing, true);
+
+        if (existing.getParent() != null) {
+            existing.getParent().getComments().remove(existing);
+            existing.setParent(null);
+        }
+
+        for (PostComment child : existing.getComments()) {
+            child.setParent(null);
+        }
+        existing.getComments().clear();
+
         repo.delete(existing);
+
         return response;
     }
 
@@ -108,6 +123,7 @@ public class PostCommentService {
                 .status(postComment.getStatus())
                 .createdAt(postComment.getCreatedAt())
                 .author(toAuthorDto(postComment.getAuthor()))
+                .parentCommentId(postComment.getParent() == null ? null : postComment.getParent().getId())
                 .tags(toTagDtoList(postComment.getTags()))
                 .voteScore(calculateVoteScore(postComment.getVotes()))
                 .commentCount(postComment.getComments() == null ? 0 : postComment.getComments().size())
@@ -155,5 +171,8 @@ public class PostCommentService {
         return votes.stream()
                 .mapToInt(Vote::getValue)
                 .sum();
+    }
+    public PostCommentResponseDto getPostCommentById(Long id) {
+        return toDto(repo.findById(id).orElseThrow(), false);
     }
 }

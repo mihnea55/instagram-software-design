@@ -7,13 +7,41 @@ import CreatePost from "./pages/CreatePost";
 import { useState } from "react";
 import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
+import { getUserById } from "./services/userService";
+import { useEffect } from "react";
 import "./App.css";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     localStorage.getItem("isLoggedIn") === "true"
   );
-  const username = localStorage.getItem("username");
+  const [username, setUsername] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
+  const refreshCurrentUser = () => {
+    const userId = localStorage.getItem("userId");
+    getUserById(userId)
+      .then((data) => {
+        setUsername(data.username);
+        setCurrentUser(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching user data:", error);
+      });
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      const userId = localStorage.getItem("userId");
+      getUserById(userId)
+        .then((data) => {
+          setUsername(data.username);
+        }
+        )
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        });
+    }
+  }, [isLoggedIn]);
   return (
     <BrowserRouter>
       <Header isLoggedIn={isLoggedIn} username={username} />
@@ -49,7 +77,7 @@ function App() {
         <Route
           path="/edit-profile"
           element={
-            isLoggedIn ? <EditProfile /> : <Navigate to="/" />
+            isLoggedIn ? <EditProfile refreshUsername={refreshCurrentUser}/> : <Navigate to="/" />
           }
         />
 

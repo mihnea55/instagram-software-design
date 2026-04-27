@@ -18,7 +18,6 @@ export default  function Header({ isLoggedIn, username }) {
     };
     const handleSignOut = () => {
         localStorage.removeItem("isLoggedIn");
-        localStorage.removeItem("username");
         localStorage.removeItem("userId");
         window.location.href = "/";
     };

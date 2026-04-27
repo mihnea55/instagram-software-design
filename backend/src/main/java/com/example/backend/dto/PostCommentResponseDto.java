@@ -18,7 +18,7 @@ public class PostCommentResponseDto {
     private String imageUrl;
     private Status status;
     private LocalDateTime createdAt;
-
+    private Long parentCommentId;
     private AuthorDto author;
     private List<TagDto> tags;
 

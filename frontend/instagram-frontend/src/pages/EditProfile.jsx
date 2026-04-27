@@ -1,6 +1,9 @@
 import { useState, useEffect} from "react";
+import { useNavigate } from "react-router-dom";
+import { getUserById, updateUser } from "../services/userService";
 
-export default function EditProfile() {
+export default function EditProfile( {refreshUsername}) {
+    const navigate = useNavigate();
     const [userData, setUserData] = useState({});
     const userId = localStorage.getItem("userId");
     const [name, setName] = useState("");
@@ -23,13 +26,11 @@ export default function EditProfile() {
             score
         };
         console.log('http://localhost:8080/api/users/' + userId);
-        fetch(`http://localhost:8080/api/users/${userId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updatedUser),
-        })
+        updateUser(userId, updatedUser)
             .then((response) => {
                 if (response.ok) {
+                    refreshUsername();
+                    navigate("/main");
                     alert("Profile updated successfully");
                 } else {
                     alert("Failed to update profile");
@@ -42,8 +43,7 @@ export default function EditProfile() {
     };
         
     useEffect(() => {
-        fetch(`http://localhost:8080/api/users/${userId}`)
-            .then((response) => response.json())
+        getUserById(userId)
             .then((data) => {
                 console.log(data);
                 setUserData(data);

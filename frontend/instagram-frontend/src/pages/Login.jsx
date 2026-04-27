@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { getUsers } from "../services/userService";
 
 function Login({ setIsLoggedIn }) {
     const navigate = useNavigate();
@@ -7,15 +8,13 @@ function Login({ setIsLoggedIn }) {
     const [password, setPassword] = useState("");
 
     const handleLogin = () => {
-        fetch("http://localhost:8080/api/users")
-            .then((response) => response.json())
+        getUsers()
             .then((data) => {
                 const user = data.find((user) => user.username === username);
 
                 if (user) {
                     if (user.passwordHash === password) {
                         localStorage.setItem("isLoggedIn", "true");
-                        localStorage.setItem("username", user.username);
                         localStorage.setItem("userId", user.id);
                         setIsLoggedIn(true);
                         navigate("/main");

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { createUser } from "../services/userService";
 
 function Register({ setIsLoggedIn }) {
     const navigate = useNavigate();
@@ -23,11 +24,7 @@ function Register({ setIsLoggedIn }) {
             score,
             name
         };
-        fetch("http://localhost:8080/api/users", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newUser),
-        })
+        createUser(newUser)
             .then((response) => {
                 if (response.ok) {;
                     navigate("/");
