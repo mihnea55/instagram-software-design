@@ -1,0 +1,146 @@
+package com.example.backend.service;
+ 
+import com.example.backend.dto.PostCommentResponseDto;
+import com.example.backend.entity.PostComment;
+import com.example.backend.entity.User;
+import com.example.backend.model.Status;
+import com.example.backend.repository.PostCommentRepository;
+import com.example.backend.repository.UserRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+ 
+import java.util.List;
+import java.util.Optional;
+ 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+ 
+@ExtendWith(MockitoExtension.class)
+class PostCommentServiceTest {
+ 
+    @Mock
+    private PostCommentRepository repo;
+ 
+    @Mock
+    private UserRepository userRepo;
+ 
+    @InjectMocks
+    private PostCommentService postCommentService;
+
+        private User makeUser(Long id, String username) {
+        User u = new User();
+        u.setId(id);
+        u.setName("Test User");
+        u.setUsername(username);
+        u.setEmail(username + "@example.com");
+        return u;
+    }
+ 
+    private PostComment makePost(Long id, User author) {
+        PostComment p = new PostComment();
+        p.setId(id);
+        p.setTitle("Test Title");
+        p.setContentText("Test content");
+        p.setAuthor(author);
+        p.setStatus(Status.JUST_POSTED);
+        p.setComments(new java.util.ArrayList<>());
+        p.setVotes(new java.util.ArrayList<>());
+        p.setTags(new java.util.ArrayList<>());
+        return p;
+    }
+
+    @Test
+    void createPost_shouldSetAuthorAndStatusAndReturnDto() {
+        User user = makeUser(1L, "alice");
+        PostComment input = new PostComment();
+        input.setTitle("My Post");
+        input.setContentText("Content here");
+        input.setComments(new java.util.ArrayList<>());
+        input.setVotes(new java.util.ArrayList<>());
+        input.setTags(new java.util.ArrayList<>());
+ 
+        PostComment saved = makePost(10L, user);
+        saved.setTitle("My Post");
+ 
+        when(userRepo.findById(1L)).thenReturn(Optional.of(user));
+        when(repo.save(any(PostComment.class))).thenReturn(saved);
+ 
+        PostCommentResponseDto result = postCommentService.createPost(1L, input);
+ 
+        assertNotNull(result);
+        assertEquals(10L, result.getId());
+        assertEquals(user, input.getAuthor());
+        assertEquals(Status.JUST_POSTED, input.getStatus());
+        assertNotNull(input.getCreatedAt());
+    }
+
+    @Test
+    void createComment_shouldSetParentAndAuthor() {
+        User user = makeUser(1L, "alice");
+        PostComment parent = makePost(5L, user);
+        PostComment input = new PostComment();
+        input.setTitle("A comment");
+        input.setContentText("comment body");
+        input.setComments(new java.util.ArrayList<>());
+        input.setVotes(new java.util.ArrayList<>());
+        input.setTags(new java.util.ArrayList<>());
+ 
+        PostComment saved = makePost(20L, user);
+        saved.setParent(parent);
+ 
+        when(userRepo.findById(1L)).thenReturn(Optional.of(user));
+        when(repo.findById(5L)).thenReturn(Optional.of(parent));
+        when(repo.save(any(PostComment.class))).thenReturn(saved);
+ 
+        PostCommentResponseDto result = postCommentService.createComment(1L, 5L, input);
+ 
+        assertNotNull(result);
+        assertEquals(parent, input.getParent());
+        assertEquals(user, input.getAuthor());
+        assertEquals(Status.JUST_POSTED, input.getStatus());
+    }
+
+    @Test
+    void getComments_shouldReturnCommentsForPost() {
+        User user = makeUser(1L, "alice");
+        PostComment c1 = makePost(10L, user);
+        PostComment c2 = makePost(11L, user);
+ 
+        when(repo.findByParentId(5L)).thenReturn(List.of(c1, c2));
+ 
+        List<PostCommentResponseDto> result = postCommentService.getComments(5L);
+ 
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void updatePostOrComment_shouldUpdateFieldsAndReturnDto() {
+        User user = makeUser(1L, "alice");
+        PostComment existing = makePost(1L, user);
+ 
+        PostComment updated = new PostComment();
+        updated.setTitle("New Title");
+        updated.setContentText("New Content");
+        updated.setTags(new java.util.ArrayList<>());
+        updated.setStatus(Status.JUST_POSTED);
+ 
+        PostComment saved = makePost(1L, user);
+        saved.setTitle("New Title");
+        saved.setContentText("New Content");
+ 
+        when(repo.findById(1L)).thenReturn(Optional.of(existing));
+        when(repo.save(existing)).thenReturn(saved);
+ 
+        PostCommentResponseDto result = postCommentService.updatePostOrComment(1L, updated);
+ 
+        assertNotNull(result);
+        assertEquals("New Title", result.getTitle());
+        assertEquals("New Content", result.getContentText());
+    }
+
+
+}
