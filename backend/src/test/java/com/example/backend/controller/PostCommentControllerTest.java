@@ -12,6 +12,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -22,6 +25,8 @@ class PostCommentControllerTest {
 
     @InjectMocks
     private PostCommentController postCommentController;
+
+
 
     @Test
     void createPost_shouldReturnCreatedPost() {
@@ -54,4 +59,70 @@ class PostCommentControllerTest {
 
         assertEquals(expected, result);
     }
+
+    @Test
+    void getPosts_shouldReturnEmptyList_whenNoPosts() {
+        when(postCommentService.getPosts()).thenReturn(List.of());
+ 
+        List<PostCommentResponseDto> result = postCommentController.getPosts();
+ 
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getPostsByUser_shouldReturnPostsForUser() {
+        List<PostCommentResponseDto> expected = List.of(new PostCommentResponseDto());
+        expected.get(0).setId(1L);
+
+        when(postCommentService.getPostsByUser(1)).thenReturn(expected);
+ 
+        List<PostCommentResponseDto> result = postCommentController.getPostsByUser(1);
+ 
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void search_shouldReturnMatchingPosts() {
+        List<PostCommentResponseDto> expected = List.of(new PostCommentResponseDto());
+        expected.get(0).setId(3L);
+        when(postCommentService.search("spring")).thenReturn(expected);
+ 
+        List<PostCommentResponseDto> result = postCommentController.search("spring");
+ 
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void updatePostOrComment_shouldReturnUpdatedDto() {
+        Long id = 1L;
+
+        PostComment updatedPost = new PostComment();
+        PostCommentResponseDto expected = new PostCommentResponseDto();
+        expected.setId(id);
+
+        when(postCommentService.updatePostOrComment(id, updatedPost)).thenReturn(expected);
+ 
+        PostCommentResponseDto result = postCommentController.updatePostOrComment(id, updatedPost);
+ 
+        assertEquals(expected, result);
+        verify(postCommentService, times(1)).updatePostOrComment(id, updatedPost);
+    }
+
+        @Test
+    void deletePostOrComment_shouldReturnDeletedDto() {
+        Long id = 1L;
+
+        PostCommentResponseDto expected = new PostCommentResponseDto();
+        expected.setId(id);
+        
+        when(postCommentService.deletePostOrComment(id)).thenReturn(expected);
+ 
+        PostCommentResponseDto result = postCommentController.deletePostOrComment(id);
+ 
+        assertEquals(expected, result);
+        verify(postCommentService, times(1)).deletePostOrComment(id);
+    }
+
+
+
 }
