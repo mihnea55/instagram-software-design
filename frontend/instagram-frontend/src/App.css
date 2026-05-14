@@ -43,8 +43,9 @@ header > h1 {
 }
 
 .profile-posts {
-    display : grid;
-    grid-template-columns: repeat(3, 300px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 16px;
 }
 .comments-section{
